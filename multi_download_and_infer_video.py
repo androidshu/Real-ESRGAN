@@ -63,9 +63,10 @@ if __name__ == '__main__':
         out_mp4_file_name = f'{file_only_name}_out.mp4'
         out_mp4_path = os.path.join(".", f'results/{out_mp4_file_name}')
         print(f'out_mp4_path:{out_mp4_path}, exists:{os.path.exists(out_mp4_path)}')
+        video_file = VideoFileClip(path)
         if os.path.exists(out_mp4_path):
             try:
-                input_mp4_duration = int(VideoFileClip(path).duration)
+                input_mp4_duration = int(video_file.duration)
                 out_mp4_duration = int(VideoFileClip(out_mp4_path).duration)
                 print(f'input_mp4_duration:{input_mp4_duration}, out_mp4_duration:{out_mp4_duration}')
                 if out_mp4_duration > 0 and input_mp4_duration > 0 and abs(
@@ -80,6 +81,7 @@ if __name__ == '__main__':
                     continue
             except Exception as e:
                 print("parse mp4 error")
+
 
         os.system(f"python inference_realesrgan_video.py -n RealESRGAN_x2plus --face_enhance -i {path}")
 
