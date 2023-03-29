@@ -171,6 +171,8 @@ class Writer:
 
 
 def inference_video(args, video_save_path, device=None, total_workers=1, worker_idx=0):
+    if device is None:
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     # ---------------------- determine models according to model names ---------------------- #
     args.model_name = args.model_name.split('.pth')[0]
     if args.model_name == 'RealESRGAN_x4plus':  # x4 RRDBNet model
