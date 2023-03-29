@@ -236,6 +236,8 @@ def inference_video(args, video_save_path, device=None, total_workers=1, worker_
             half=not args.fp32,
             device=device,
         )
+    else:
+        args.outscale = 1
 
     if 'anime' in args.model_name and args.face_enhance:
         print('face_enhance is not supported in anime models, we turned this option off for you. '
