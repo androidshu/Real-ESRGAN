@@ -171,6 +171,7 @@ class Writer:
 
 
 def inference_video(args, video_save_path, device=None, total_workers=1, worker_idx=0):
+    print(f'device:{device}')
     if device is None:
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     # ---------------------- determine models according to model names ---------------------- #
@@ -227,6 +228,7 @@ def inference_video(args, video_save_path, device=None, total_workers=1, worker_
     upsampler = None
     if not args.face_enhance or min(height, width) < 720:
         # restorer
+        model.to(device)
         upsampler = RealESRGANer(
             scale=netscale,
             model_path=model_path,
@@ -310,7 +312,7 @@ def run(args):
         sub_video_save_path = osp.join(args.output, f'{args.video_name}_out_tmp_videos', f'{i:03d}.mp4')
         pool.apply_async(
             inference_video,
-            args=(args, sub_video_save_path, torch.device(i % num_gpus), num_process, i),
+            args=(args, sub_video_save_path, torch.device(f'cuda:{i % num_gpus}'), num_process, i),
             callback=lambda arg: pbar.update(1))
     pool.close()
     pool.join()
