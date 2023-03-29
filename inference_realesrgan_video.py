@@ -14,7 +14,7 @@ from tqdm import tqdm
 
 from realesrgan import RealESRGANer
 from realesrgan.archs.srvgg_arch import SRVGGNetCompact
-
+from facexlib.detection import retinaface
 try:
     import ffmpeg
 except ImportError:
@@ -251,7 +251,9 @@ def inference_video(args, video_save_path, device=None, total_workers=1, worker_
             upscale=args.outscale,
             arch='clean',
             channel_multiplier=2,
-            bg_upsampler=upsampler)  # TODO support custom device
+            device=device,
+            bg_upsampler=upsampler)
+        retinaface.device = device
     else:
         face_enhancer = None
 
@@ -292,8 +294,7 @@ def run(args):
         os.system(f'ffmpeg -i {args.input} -qscale:v 1 -qmin 1 -qmax 1 -vsync 0  {tmp_frames_folder}/frame%08d.png')
         args.input = tmp_frames_folder
 
-    # num_gpus = torch.cuda.device_count()
-    num_gpus = 1
+    num_gpus = torch.cuda.device_count()
     num_process = num_gpus * args.num_process_per_gpu
     if num_process == 1:
         inference_video(args, video_save_path)
