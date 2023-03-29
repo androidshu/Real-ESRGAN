@@ -292,7 +292,8 @@ def run(args):
         os.system(f'ffmpeg -i {args.input} -qscale:v 1 -qmin 1 -qmax 1 -vsync 0  {tmp_frames_folder}/frame%08d.png')
         args.input = tmp_frames_folder
 
-    num_gpus = torch.cuda.device_count()
+    # num_gpus = torch.cuda.device_count()
+    num_gpus = 1
     num_process = num_gpus * args.num_process_per_gpu
     if num_process == 1:
         inference_video(args, video_save_path)
