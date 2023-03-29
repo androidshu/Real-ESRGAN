@@ -217,18 +217,25 @@ def inference_video(args, video_save_path, device=None, total_workers=1, worker_
         model_path = [model_path, wdn_model_path]
         dni_weight = [args.denoise_strength, 1 - args.denoise_strength]
 
-    # restorer
-    upsampler = RealESRGANer(
-        scale=netscale,
-        model_path=model_path,
-        dni_weight=dni_weight,
-        model=model,
-        tile=args.tile,
-        tile_pad=args.tile_pad,
-        pre_pad=args.pre_pad,
-        half=not args.fp32,
-        device=device,
-    )
+    reader = Reader(args, total_workers, worker_idx)
+    audio = reader.get_audio()
+    height, width = reader.get_resolution()
+    fps = reader.get_fps()
+
+    upsampler = None
+    if not args.face_enhance or min(height, width) < 720:
+        # restorer
+        upsampler = RealESRGANer(
+            scale=netscale,
+            model_path=model_path,
+            dni_weight=dni_weight,
+            model=model,
+            tile=args.tile,
+            tile_pad=args.tile_pad,
+            pre_pad=args.pre_pad,
+            half=not args.fp32,
+            device=device,
+        )
 
     if 'anime' in args.model_name and args.face_enhance:
         print('face_enhance is not supported in anime models, we turned this option off for you. '
@@ -246,10 +253,7 @@ def inference_video(args, video_save_path, device=None, total_workers=1, worker_
     else:
         face_enhancer = None
 
-    reader = Reader(args, total_workers, worker_idx)
-    audio = reader.get_audio()
-    height, width = reader.get_resolution()
-    fps = reader.get_fps()
+
     writer = Writer(args, audio, height, width, video_save_path, fps)
 
     pbar = tqdm(total=len(reader), unit='frame', desc='inference')
